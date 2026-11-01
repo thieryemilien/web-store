@@ -2,17 +2,23 @@ from fastapi import APIRouter, Depends
 
 from backend.schemas import dto as s
 from backend.services.tienda_service import TiendaService
-from backend.repositories.memory import MemoryStore
+from sqlalchemy.orm import Session
+
+from backend.database.connection import get_db
+from backend.services.tienda_service import TiendaService
+from fastapi import File, UploadFile
+#from backend.repositories.memory import MemoryStore
 
 
 router = APIRouter(prefix="/api", tags=["Tienda"])
 
 # Una única instancia compartida en memoria
-store = MemoryStore()
+#store = MemoryStore()
+#def get_service():
+#    return TiendaService(store)
 
-
-def get_service():
-    return TiendaService(store)
+def get_service(db: Session = Depends(get_db)):
+    return TiendaService(db)
 
 
 # CLIENTES
@@ -179,3 +185,17 @@ def obtener_pedido(
     service: TiendaService = Depends(get_service)
 ):
     return service.obtener_pedido(pedido_id)
+
+@router.post(
+    "/productos/{producto_id}/imagen",
+    response_model=s.ProductoOut
+)
+async def subir_imagen_producto(
+    producto_id: int,
+    archivo: UploadFile = File(...),
+    service: TiendaService = Depends(get_service)
+):
+    return await service.subir_imagen_producto(
+        producto_id,
+        archivo
+    )

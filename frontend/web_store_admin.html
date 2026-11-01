@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Web Store · Panel de administración</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #101b32;
+            --blue: #4b70f5;
+            --bg: #f5f7fc
+        }
+
+        body {
+            background: var(--bg);
+            color: #26324a;
+            font-family: system-ui, -apple-system, Segoe UI, sans-serif
+        }
+
+        .sidebar {
+            background: var(--navy);
+            min-height: 100vh;
+            color: white
+        }
+
+        .brand {
+            font-weight: 800;
+            font-size: 1.4rem;
+            letter-spacing: -.04em
+        }
+
+        .nav-btn {
+            border: 0;
+            background: transparent;
+            color: #aebbd4;
+            width: 100%;
+            text-align: left;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin: 3px 0
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            background: #293958;
+            color: white
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e7eaf2;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px #1c2c4b08
+        }
+
+        .metric {
+            font-size: 2rem;
+            font-weight: 750
+        }
+
+        .product-img {
+            width: 66px;
+            height: 58px;
+            object-fit: cover;
+            border-radius: 10px;
+            background: #eef1f7
+        }
+
+        .empty-img {
+            width: 66px;
+            height: 58px;
+            border-radius: 10px;
+            background: #eef1f7;
+            display: grid;
+            place-items: center;
+            color: #8692a9
+        }
+
+        .page {
+            display: none
+        }
+
+        .page.active {
+            display: block
+        }
+
+        .section-title {
+            font-weight: 750;
+            letter-spacing: -.03em
+        }
+
+        .table>:not(caption)>*>* {
+            padding: .85rem
+        }
+
+        .btn-primary {
+            background: var(--blue);
+            border-color: var(--blue)
+        }
+
+        .btn-primary:hover {
+            background: #3459d9;
+            border-color: #3459d9
+        }
+
+        .badge-soft {
+            background: #e9edff;
+            color: #3656bc
+        }
+
+        .small-muted {
+            color: #71809b;
+            font-size: .87rem
+        }
+
+        #toastArea {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 1100;
+            max-width: 420px
+        }
+
+        .code-output {
+            max-height: 180px;
+            overflow: auto;
+            white-space: pre-wrap;
+            font-size: .8rem
+        }
+
+        .mobile-nav {
+            overflow-x: auto;
+            white-space: nowrap
+        }
+
+        @media(max-width:767px) {
+            .sidebar {
+                min-height: auto
+            }
+
+            .nav-btn {
+                width: auto;
+                display: inline-block;
+                margin-right: 5px
+            }
+
+            .main {
+                padding-top: 20px !important
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <aside class="sidebar col-md-3 col-lg-2 p-3 p-lg-4">
+                <div class="brand mb-1">◈ Web Store</div>
+                <div class="small text-white-50 mb-4">Panel de gestión · FastAPI</div>
+                <nav class="mobile-nav" id="nav">
+                    <button class="nav-btn active" data-page="dashboard">▦ &nbsp; Dashboard</button><button
+                        class="nav-btn" data-page="productos">▣ &nbsp; Productos</button><button class="nav-btn"
+                        data-page="clientes">♙ &nbsp; Clientes</button><button class="nav-btn" data-page="carrito">🛒
+                        &nbsp; Carrito</button><button class="nav-btn" data-page="pedidos">▤ &nbsp; Pedidos</button>
+                </nav>
+                <div class="small text-white-50 mt-5 d-none d-md-block">HTML · JavaScript · Bootstrap 5</div>
+            </aside>
+            <main class="main col-md-9 col-lg-10 p-3 p-lg-5">
+                <div class="panel p-3 mb-4">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-8"><label class="form-label fw-semibold small">URL de tu API
+                                FastAPI</label><input class="form-control" id="apiBase" value="http://localhost:8000"
+                                placeholder="http://localhost:8000"></div>
+                        <div class="col-md-4 d-flex gap-2"><button class="btn btn-primary flex-grow-1"
+                                id="connectBtn">Conectar y actualizar</button><span
+                                class="badge text-bg-secondary align-self-center" id="connectionStatus">Sin
+                                verificar</span></div>
+                    </div>
+                    <div class="small-muted mt-2">Recomendado: servir este archivo desde FastAPI para evitar problemas
+                        de CORS.</div>
+                </div>
+                <section class="page active" id="page-dashboard">
+                    <h2 class="section-title mb-1">Resumen de la tienda</h2>
+                    <p class="small-muted mb-4">Datos obtenidos en tiempo real de tu API.</p>
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-4">
+                            <div class="panel p-4">
+                                <div class="small-muted">Productos</div>
+                                <div class="metric" id="countProducts">—</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="panel p-4">
+                                <div class="small-muted">Clientes</div>
+                                <div class="metric" id="countClients">—</div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="panel p-4">
+                                <div class="small-muted">Pedidos del cliente seleccionado</div>
+                                <div class="metric" id="countOrders">—</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel p-4">
+                        <h5>Primeros pasos</h5>
+                        <p class="mb-2">1. Comprueba la conexión con FastAPI.</p>
+                        <p class="mb-2">2. Registra productos y clientes.</p>
+                        <p class="mb-2">3. Añade una dirección al cliente.</p>
+                        <p class="mb-0">4. Agrega productos al carrito y confirma el pedido.</p>
+                    </div>
+                </section>
+                <section class="page" id="page-productos">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h2 class="section-title mb-0">Productos</h2><span class="small-muted">Catálogo y gestión de
+                                imágenes</span>
+                        </div><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal"
+                            id="newProduct">+ Nuevo producto</button>
+                    </div>
+                    <div class="panel p-3">
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Imagen</th>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsBody">
+                                    <tr>
+                                        <td colspan="5">Conecta la API para cargar productos.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                <section class="page" id="page-clientes">
+                    <h2 class="section-title mb-3">Clientes y direcciones</h2>
+                    <div class="row g-3">
+                        <div class="col-lg-5">
+                            <div class="panel p-4">
+                                <h5>Nuevo cliente</h5>
+                                <form id="clientForm"><label class="form-label mt-2">Nombre</label><input
+                                        class="form-control" name="nombre" required><label
+                                        class="form-label mt-3">Email</label><input class="form-control" type="email"
+                                        name="email" required><label class="form-label mt-3">Teléfono</label><input
+                                        class="form-control" name="telefono" required><button
+                                        class="btn btn-primary mt-3" type="submit">Crear cliente</button></form>
+                            </div>
+                            <div class="panel p-4 mt-3">
+                                <h5>Agregar dirección</h5>
+                                <form id="addressForm"><label class="form-label">Cliente</label><select
+                                        class="form-select client-select" name="cliente_id" required></select><label
+                                        class="form-label mt-2">Calle</label><input class="form-control" name="calle"
+                                        required>
+                                    <div class="row g-2 mt-1">
+                                        <div class="col-6"><label class="form-label">Ciudad</label><input
+                                                class="form-control" name="ciudad" required></div>
+                                        <div class="col-6"><label class="form-label">Provincia</label><input
+                                                class="form-control" name="provincia" required></div>
+                                        <div class="col-6"><label class="form-label">Código postal</label><input
+                                                class="form-control" name="codigo_postal" required></div>
+                                        <div class="col-6"><label class="form-label">País</label><input
+                                                class="form-control" name="pais" value="España" required></div>
+                                    </div><button class="btn btn-outline-primary mt-3" type="submit">Guardar
+                                        dirección</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="panel p-3">
+                                <h5 class="p-2">Clientes registrados</h5>
+                                <div class="table-responsive">
+                                    <table class="table align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Nombre</th>
+                                                <th>Email</th>
+                                                <th>Acción</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="clientsBody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="panel p-3 mt-3">
+                                <h5>Direcciones del cliente</h5>
+                                <div id="addressList" class="small-muted">Selecciona «Direcciones» en la tabla.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="page" id="page-carrito">
+                    <h2 class="section-title mb-3">Carrito de compra</h2>
+                    <div class="row g-3">
+                        <div class="col-lg-5">
+                            <div class="panel p-4">
+                                <h5>Agregar producto</h5>
+                                <form id="cartForm"><label class="form-label">Cliente</label><select
+                                        class="form-select client-select" name="cliente_id" id="cartClient"
+                                        required></select><label class="form-label mt-3">Producto</label><select
+                                        class="form-select" name="producto_id" id="cartProduct" required></select><label
+                                        class="form-label mt-3">Cantidad</label><input class="form-control"
+                                        type="number" min="1" value="1" name="cantidad" required><button
+                                        class="btn btn-primary mt-3" type="submit">Añadir al carrito</button></form>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="panel p-4">
+                                <div class="d-flex justify-content-between">
+                                    <h5>Detalle del carrito</h5><button class="btn btn-sm btn-outline-secondary"
+                                        id="refreshCart">Actualizar</button>
+                                </div>
+                                <div id="cartItems" class="mt-3 small-muted">Selecciona un cliente.</div>
+                                <hr>
+                                <div class="d-flex justify-content-between align-items-center"><strong>Total</strong>
+                                    <h4 id="cartTotal">0,00 €</h4>
+                                </div><button class="btn btn-success w-100 mt-2" id="checkoutBtn">Confirmar
+                                    pedido</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="page" id="page-pedidos">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="section-title mb-0">Pedidos</h2><select class="form-select client-select"
+                            style="max-width:280px" id="ordersClient"></select>
+                    </div>
+                    <div class="panel p-3">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Fecha</th>
+                                        <th>Estado</th>
+                                        <th>Artículos</th>
+                                        <th>Total</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="panel p-3 mt-3" id="orderDetail" hidden></div>
+                </section>
+            </main>
+        </div>
+    </div>
+    <div class="modal fade" id="productModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="productForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="productModalTitle">Nuevo producto</h5><button class="btn-close"
+                            type="button" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body"><input type="hidden" name="id"><label
+                            class="form-label">Nombre</label><input class="form-control" name="nombre" required><label
+                            class="form-label mt-3">Descripción</label><textarea class="form-control" name="descripcion"
+                            rows="2"></textarea><label class="form-label mt-3">Precio (€)</label><input
+                            class="form-control" name="precio" type="number" min="0.01" step="0.01" required>
+                        <div class="form-check mt-3"><input class="form-check-input" name="activo" type="checkbox"
+                                checked id="activeCheck"><label class="form-check-label" for="activeCheck">Producto
+                                activo</label></div>
+                    </div>
+                    <div class="modal-footer"><button class="btn btn-secondary" type="button"
+                            data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary"
+                            type="submit">Guardar</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="imageForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Subir imagen del producto</h5><button class="btn-close" type="button"
+                            data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body"><input type="hidden" name="id"><label class="form-label">Imagen (JPG, PNG o
+                            WebP; máximo 5 MB)</label><input class="form-control" type="file" name="archivo"
+                            accept="image/jpeg,image/png,image/webp" required></div>
+                    <div class="modal-footer"><button class="btn btn-secondary" type="button"
+                            data-bs-dismiss="modal">Cancelar</button><button class="btn btn-primary" type="submit">Subir
+                            imagen</button></div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="toastArea" aria-live="polite"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        'use strict';
+        const $ = id => document.getElementById(id);
+        const state = { products: [], clients: [], orders: [], selectedClient: null };
+        const money = n => Number(n || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' });
+        const base = () => $('apiBase').value.trim().replace(/\/+$/, '');
+        const url = path => base() + path;
+        const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        function notice(msg, error = false) { const div = document.createElement('div'); div.className = 'alert ' + (error ? 'alert-danger' : 'alert-success') + ' shadow'; div.textContent = msg; $('toastArea').appendChild(div); setTimeout(() => div.remove(), 5500) }
+        async function api(path, { method = 'GET', body, form } = {}) { 
+            const options = { method, headers: {} }; 
+            if (body !== undefined) { 
+                options.headers['Content-Type'] = 'application/json'; 
+                options.body = JSON.stringify(body) 
+            } 
+                
+            if (form) options.body = form; let res; try { res = await fetch(url(path), options) } catch (e) { throw new Error('No se pudo conectar a ' + base() + '. Revisa FastAPI y CORS.') } let payload; const raw = await res.text(); try { payload = raw ? JSON.parse(raw) : null } catch { payload = raw } if (!res.ok) { const detail = payload?.detail; throw new Error(typeof detail === 'string' ? detail : Array.isArray(detail) ? detail.map(x => x.msg).join('; ') : `HTTP ${res.status}: ${raw.slice(0, 200)}`) } return payload }
+        async function run(fn) { try { await fn() } catch (e) { notice(e.message, true); console.error(e) } }
+        function switchPage(name) { document.querySelectorAll('.page').forEach(el => el.classList.toggle('active', el.id === 'page-' + name)); document.querySelectorAll('.nav-btn').forEach(el => el.classList.toggle('active', el.dataset.page === name)); if (name === 'carrito') run(loadCart); if (name === 'pedidos') run(loadOrders) }
+        document.querySelectorAll('.nav-btn').forEach(b => b.addEventListener('click', () => switchPage(b.dataset.page)));
+        function fillClients() { const ids = ['cartClient', 'ordersClient']; const existing = Object.fromEntries(ids.map(id => [id, $(id).value])); document.querySelectorAll('.client-select').forEach(sel => { const prev = sel.value; sel.replaceChildren(); for (const c of state.clients) { const opt = document.createElement('option'); opt.value = c.id; opt.textContent = `${c.nombre} (#${c.id})`; sel.appendChild(opt) } const target = ids.includes(sel.id) ? existing[sel.id] : prev; if (state.clients.some(c => String(c.id) === target)) sel.value = target }); state.selectedClient = Number($('cartClient').value) || null }
+        function fillProducts() { const sel = $('cartProduct'), prev = sel.value; sel.replaceChildren(); for (const p of state.products.filter(p => p.activo)) { const opt = document.createElement('option'); opt.value = p.id; opt.textContent = `${p.nombre} · ${money(p.precio)}`; sel.appendChild(opt) } if (state.products.some(p => String(p.id) === prev)) sel.value = prev }
+        function renderProducts() { $('productsBody').innerHTML = state.products.length ? state.products.map(p => `<tr><td>${p.imagen_url ? `<img class="product-img" alt="${esc(p.nombre)}" src="${esc(url(p.imagen_url))}">` : '<div class="empty-img">▧</div>'}</td><td><strong>${esc(p.nombre)}</strong><div class="small-muted">${esc(p.descripcion)}</div></td><td>${money(p.precio)}</td><td><span class="badge ${p.activo ? 'badge-soft' : 'text-bg-secondary'}">${p.activo ? 'Activo' : 'Inactivo'}</span></td><td><div class="d-flex gap-2 flex-wrap"><button class="btn btn-sm btn-outline-primary" data-edit="${p.id}">Editar</button><button class="btn btn-sm btn-outline-secondary" data-image="${p.id}">Imagen</button></div></td></tr>`).join('') : '<tr><td colspan="5">No hay productos.</td></tr>' }
+        function renderClients() { $('clientsBody').innerHTML = state.clients.length ? state.clients.map(c => `<tr><td>${c.id}</td><td>${esc(c.nombre)}</td><td>${esc(c.email)}</td><td><button class="btn btn-sm btn-outline-primary" data-address="${c.id}">Direcciones</button></td></tr>`).join('') : '<tr><td colspan="4">No hay clientes.</td></tr>' }
+        async function refresh() { const [products, clients] = await Promise.all([api('/api/v1/productos'), api('/api/v1/clientes')]); state.products = products; state.clients = clients; $('countProducts').textContent = products.length; $('countClients').textContent = clients.length; renderProducts(); renderClients(); fillClients(); fillProducts(); $('connectionStatus').textContent = 'Conectado'; $('connectionStatus').className = 'badge text-bg-success align-self-center'; await Promise.allSettled([loadCart(), loadOrders()]) }
+        $('connectBtn').addEventListener('click', () => run(refresh));
+        $('newProduct').addEventListener('click', () => { $('productForm').reset(); $('productForm').elements.id.value = ''; $('productModalTitle').textContent = 'Nuevo producto' });
+        $('productsBody').addEventListener('click', e => { const edit = e.target.closest('[data-edit]'), img = e.target.closest('[data-image]'); if (edit) { const p = state.products.find(x => x.id === Number(edit.dataset.edit)); if (!p) return; const f = $('productForm'); f.elements.id.value = p.id; f.elements.nombre.value = p.nombre; f.elements.descripcion.value = p.descripcion; f.elements.precio.value = p.precio; f.elements.activo.checked = p.activo; $('productModalTitle').textContent = 'Editar producto'; bootstrap.Modal.getOrCreateInstance($('productModal')).show() } if (img) { $('imageForm').reset(); $('imageForm').elements.id.value = img.dataset.image; bootstrap.Modal.getOrCreateInstance($('imageModal')).show() } });
+        $('productForm').addEventListener('submit', e => { e.preventDefault(); run(async () => { const f = e.target, id = f.elements.id.value; const body = { nombre: f.elements.nombre.value, descripcion: f.elements.descripcion.value, precio: f.elements.precio.value, activo: f.elements.activo.checked }; await api(id ? `/api/v1/productos/${id}` : '/api/v1/productos', { method: id ? 'PUT' : 'POST', body }); bootstrap.Modal.getInstance($('productModal')).hide(); notice(id ? 'Producto actualizado' : 'Producto creado'); await refresh() }) });
+        $('imageForm').addEventListener('submit', e => { e.preventDefault(); run(async () => { const f = e.target, file = f.elements.archivo.files[0]; if (!file) throw Error('Selecciona una imagen'); if (file.size > 5 * 1024 * 1024) throw Error('La imagen supera 5 MB'); const fd = new FormData(); fd.append('archivo', file); await api(`/api/v1/productos/${f.elements.id.value}/imagen`, { method: 'POST', form: fd }); bootstrap.Modal.getInstance($('imageModal')).hide(); notice('Imagen subida'); await refresh() }) });
+        $('clientForm').addEventListener('submit', e => { e.preventDefault(); run(async () => { const f = e.target; await api('/api/v1/clientes', { method: 'POST', body: { nombre: f.elements.nombre.value, email: f.elements.email.value, telefono: f.elements.telefono.value } }); f.reset(); notice('Cliente creado'); await refresh() }) });
+        $('addressForm').addEventListener('submit', e => { e.preventDefault(); run(async () => { const f = e.target, id = f.elements.cliente_id.value; if (!id) throw Error('Selecciona un cliente'); const body = Object.fromEntries(['calle', 'ciudad', 'provincia', 'codigo_postal', 'pais'].map(k => [k, f.elements[k].value])); await api(`/api/v1/clientes/${id}/direcciones`, { method: 'POST', body }); notice('Dirección guardada'); await showAddresses(id) }) });
+        async function showAddresses(id) { const data = await api(`/api/v1/clientes/${id}/direcciones`); $('addressList').innerHTML = data.length ? data.map(d => `<div class="border-bottom py-2"><strong>${esc(d.calle)}</strong><br>${esc(d.codigo_postal)} ${esc(d.ciudad)}, ${esc(d.provincia)} · ${esc(d.pais)}</div>`).join('') : 'Este cliente todavía no tiene direcciones.' }
+        $('clientsBody').addEventListener('click', e => { const b = e.target.closest('[data-address]'); if (b) run(() => showAddresses(b.dataset.address)) });
+        $('cartClient').addEventListener('change', () => run(loadCart)); $('refreshCart').addEventListener('click', () => run(loadCart));
+        $('cartForm').addEventListener('submit', e => { e.preventDefault(); run(async () => { const f = e.target, id = f.elements.cliente_id.value; if (!id) throw Error('Selecciona un cliente'); await api(`/api/v1/clientes/${id}/carrito/items`, { method: 'POST', body: { producto_id: Number(f.elements.producto_id.value), cantidad: Number(f.elements.cantidad.value) } }); notice('Producto agregado'); await loadCart() }) });
+        async function loadCart() { const id = $('cartClient').value; if (!id) { $('cartItems').textContent = 'No hay clientes'; $('cartTotal').textContent = money(0); return } const c = await api(`/api/v1/clientes/${id}/carrito`); $('cartItems').innerHTML = c.items.length ? c.items.map(i => `<div class="d-flex justify-content-between align-items-center border-bottom py-2"><div><strong>${esc(i.nombre)}</strong><div class="small-muted">${i.cantidad} × ${money(i.precio_unitario)}</div></div><div>${money(i.subtotal)} <button class="btn btn-sm btn-outline-danger ms-2" data-remove="${i.producto_id}">Quitar</button></div></div>`).join('') : 'El carrito está vacío'; $('cartTotal').textContent = money(c.total); $('checkoutBtn').disabled = !c.items.length }
+        $('cartItems').addEventListener('click', e => { const b = e.target.closest('[data-remove]'); if (b) run(async () => { await api(`/api/v1/clientes/${$('cartClient').value}/carrito/items/${b.dataset.remove}`, { method: 'DELETE' }); notice('Producto eliminado'); await loadCart() }) });
+        $('checkoutBtn').addEventListener('click', () => run(async () => { const id = $('cartClient').value; if (!id) throw Error('Selecciona un cliente'); const dirs = await api(`/api/v1/clientes/${id}/direcciones`); if (!dirs.length) throw Error('Este cliente no tiene dirección. Crea una en la sección Clientes.'); const options = dirs.map(d => `${d.id}: ${d.calle}, ${d.ciudad}`).join('\n'); const value = prompt('Selecciona el ID de la dirección de entrega:\n' + options, String(dirs[0].id)); if (value === null) return; const dir = dirs.find(d => d.id === Number(value)); if (!dir) throw Error('Dirección no válida'); const order = await api(`/api/v1/clientes/${id}/pedidos`, { method: 'POST', body: { direccion_id: dir.id } }); notice(`Pedido #${order.id} creado correctamente`); await loadCart(); await loadOrders() }));
+        $('ordersClient').addEventListener('change', () => run(loadOrders));
+        async function loadOrders() { const id = $('ordersClient').value; if (!id) { $('ordersBody').innerHTML = '<tr><td colspan="6">Selecciona un cliente</td></tr>'; $('countOrders').textContent = '0'; return } state.orders = await api(`/api/v1/clientes/${id}/pedidos`); $('countOrders').textContent = state.orders.length; $('ordersBody').innerHTML = state.orders.length ? state.orders.map(p => `<tr><td>#${p.id}</td><td>${esc(new Date(p.fecha).toLocaleString('es-ES'))}</td><td><span class="badge badge-soft">${esc(p.estado)}</span></td><td>${p.detalles.length}</td><td>${money(p.total)}</td><td><button class="btn btn-sm btn-outline-primary" data-order="${p.id}">Ver detalle</button></td></tr>`).join('') : '<tr><td colspan="6">No hay pedidos.</td></tr>' }
+        $('ordersBody').addEventListener('click', e => { const b = e.target.closest('[data-order]'); if (!b) return; const p = state.orders.find(x => x.id === Number(b.dataset.order)); if (!p) return; $('orderDetail').hidden = false; $('orderDetail').innerHTML = `<h5>Pedido #${p.id}</h5><div class="small-muted mb-2">Dirección ID: ${p.direccion_id}</div>${p.detalles.map(d => `<div class="d-flex justify-content-between border-bottom py-2"><span>${esc(d.nombre_producto)} × ${d.cantidad}</span><strong>${money(d.subtotal)}</strong></div>`).join('')}<div class="text-end mt-3"><strong>Total: ${money(p.total)}</strong></div>` });
+        if (location.protocol.startsWith('http')) { $('apiBase').value = location.origin } run(refresh);
+    </script>
+</body>
+
+</html>

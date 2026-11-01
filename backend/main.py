@@ -2,7 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from backend.controllers.tienda_controller import router
-
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
     title="Tienda API",
@@ -25,6 +26,15 @@ async def validation_handler(request: Request, exc: ValueError):
         content={"detail": str(exc)}
     )
 
+
+UPLOADS_DIR = Path(__file__).resolve().parent / "uploads"
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
+app.mount(
+    "/uploads",
+    StaticFiles(directory=UPLOADS_DIR),
+    name="uploads"
+)
 
 @app.get("/health")
 def health():

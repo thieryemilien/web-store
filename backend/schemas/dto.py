@@ -1,12 +1,14 @@
 from decimal import Decimal
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
+from decimal import Decimal
 
 
 class ClienteCreate(BaseModel):
     nombre: str = Field(min_length=1)
     email: str = Field(min_length=3)
     telefono: str
+    password: str
 
 
 class ClienteOut(ClienteCreate):
@@ -35,6 +37,9 @@ class ProductoCreate(BaseModel):
 
 class ProductoOut(ProductoCreate):
     id: int
+    imagen_url: str | None = None
+
+    model_config = {"from_attributes": True}
 
 
 class AgregarCarritoIn(BaseModel):
