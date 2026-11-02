@@ -1,0 +1,53 @@
+******************************************************************************************
+
+								INTEGRACION CON MYSQL
+
+******************************************************************************************
+
+Añadir dependencias:
+ backend/requirements.txt:
+ 
+	fastapi
+	uvicorn
+	SQLAlchemy>=2.0
+	PyMySQL>=1.1
+	pydantic>=2
+	python-dotenv>=1.0
+	pytest
+	httpx
+
+Instalar las dependecnias:
+  .\backend\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+  
+  
+Configurar la conexión:
+ En backend/.env:
+    DATABASE_URL=mysql+pymysql://tienda:tienda123@127.0.0.1:3306/web_store
+
+
+create the database
+
+CREATE DATABASE IF NOT EXISTS web_store
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+USE web_store;
+
+
+	
+
+crear todas las tablas
+.\backend\.venv\Scripts\python.exe -m backend.database.init_db	
+
+
+# 2. Instalar dependencias
+.\backend\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+
+# 3. Crear las tablas
+.\backend\.venv\Scripts\python.exe -m backend.database.init_db
+
+# 4. Insertar datos iniciales
+.\backend\.venv\Scripts\python.exe -m backend.database.seed
+
+# 5. Iniciar FastAPI
+.\backend\.venv\Scripts\python.exe -m uvicorn backend.main:app --reload

@@ -1,16 +1,5 @@
-# Python
-__pycache__/
-*.py[cod]
-
-# Entornos virtuales
 .venv/
-venv/
-
-# Variables de entorno
+__pycache__/
+*.pyc
 .env
-
-# Archivos subidos
-backend/uploads/
-
-# Herramientas de pruebas
-.pytest_cache/
+instance/

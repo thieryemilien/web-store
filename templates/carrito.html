@@ -1,0 +1,67 @@
+{% extends 'base.html' %}{% block title %}Carrito{% endblock %}{% block content%}
+<h1>Carrito de compra</h1>
+<form method="get" class="mb-4">
+    <label class="form-label">Seleccionar cliente</label>
+    <div class="d-flex gap-2"><select class="form-select" name="cliente_id" required>
+            <option value>-- Seleccionar
+                --</option>{% for c in clientes %}<option value="{{ c.id }}" {% if cliente and cliente.id==c.id
+                %}selected{% endif %}>{{
+                c.nombre }} ({{ c.email }})</option>{% endfor %}
+        </select><button class="btn btn-outline-primary">Ver carrito</button></div>
+</form>
+{% if cliente %}<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card p-3">
+            <h4>Añadir producto</h4>
+            <form method="post" action="{{ url_for('carrito_agregar') }}"><input type="hidden" name="cliente_id"
+                    value="{{ cliente.id }}">
+                <label class="form-label w-100">Producto<select class="form-select" name="producto_id" required>{% for p
+                        in productos %}<option value="{{ p.id }}">{{ p.nombre }}
+                            — {{ p.precio|euros }}</option>{% endfor
+                        %}</select></label>
+                <label class="form-label w-100">Cantidad<input class="form-control" name="cantidad" type="number"
+                        min="1" max="1000" value="1" required></label>
+                <button class="btn btn-primary" {% if not productos %}disabled{% endif %}>Añadir</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <h4>Productos del carrito</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if carrito %}{% for d in carrito.detalles %}<tr>
+                    <td>{{
+                        d.producto.nombre }}</td>
+                    <td>{{ d.cantidad }}</td>
+                    <td>{{
+                        (d.producto.precio * d.cantidad)|euros }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('carrito_quitar', detalle_id=d.id) }}"><button
+                                class="btn btn-sm btn-outline-danger">Quitar</button></form>
+                    </td>
+                </tr>{%
+                endfor %}{% endif %}
+            </tbody>
+        </table>
+        <h4>Total: {{ total|euros }}</h4>
+        {% if carrito and carrito.detalles %}<form method="post" action="{{ url_for('pedido_crear') }}"><input
+                type="hidden" name="cliente_id" value="{{ cliente.id }}"><label class="form-label w-100">Dirección de
+                entrega<select class="form-select" name="direccion_id" required>{% for d in
+                    direcciones %}<option value="{{ d.id }}">{{ d.calle }}, {{
+                        d.ciudad }}</option>{% endfor %}</select></label>
+            {% if direcciones %}<button class="btn btn-success">Confirmar
+                pedido</button>{% else %}<p>Primero <a
+                    href="{{ url_for('direcciones', cliente_id=cliente.id) }}">registra
+                    una dirección</a>.</p>{% endif %}</form>{% else %}<p class="text-muted">El carrito está vacío.</p>{%
+        endif %}
+    </div>
+</div>{% else %}<p class="text-muted">Registra o selecciona un cliente
+    para gestionar su carrito.</p>{% endif %}{% endblock %}

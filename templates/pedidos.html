@@ -1,0 +1,11 @@
+{% extends 'base.html' %}{% block title %}Pedidos{% endblock %}{% block content %}<h1>Pedidos</h1>
+{% for p in pedidos %}<div class="card mb-3 shadow-sm">
+    <div class="card-header d-flex justify-content-between"><strong>Pedido #{{ p.id }} · {{ p.cliente.nombre
+            }}</strong><span>{{ p.fecha.strftime('%d/%m/%Y %H:%M') }} · {{ p.estado }}</span></div>
+    <div class="card-body">
+        <p class="text-muted">Envío: {{ p.direccion.calle }}, {{ p.direccion.ciudad }}</p>
+        <ul>{% for d in p.detalles %}<li>{{ d.nombre_producto }} × {{ d.cantidad }} — {{ (d.precio_unitario *
+                d.cantidad)|euros }}</li>{% endfor %}</ul><strong>Total: {{ p.total|euros }}</strong>
+    </div>
+</div>
+{% else %}<p>No hay pedidos todavía.</p>{% endfor %}{% endblock %}

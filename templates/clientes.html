@@ -1,0 +1,43 @@
+{% extends 'base.html' %}{% block title %}Clientes{% endblock %}{% block content
+%}<h1>Clientes</h1>
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card p-3">
+            <h4>Nuevo
+                cliente</h4>
+            <form method="post">
+                <label class="form-label w-100">Nombre<input class="form-control" name="nombre" required></label>
+                <label class="form-label w-100">Email<input class="form-control" type="email" name="email"
+                        required></label>
+                <label class="form-label w-100">Teléfono<input class="form-control" name="telefono"></label>
+                <button class="btn btn-primary">Registrar</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Direcciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in clientes %}<tr>
+                        <td>{{ c.nombre }}</td>
+                        <td>{{
+                            c.email }}</td>
+                        <td><a class="btn btn-sm btn-outline-primary"
+                                href="{{ url_for('direcciones', cliente_id=c.id) }}">Gestionar</a></td>
+                    </tr>{%
+                    else %}<tr>
+                        <td colspan="3">Sin clientes.</td>
+                    </tr>{% endfor
+                    %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>{% endblock %}

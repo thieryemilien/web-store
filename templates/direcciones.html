@@ -1,0 +1,23 @@
+{% extends 'base.html' %}{% block title %}Direcciones{% endblock %}{% block content %}<h1>Direcciones de {{
+    cliente.nombre }}</h1>
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card p-3">
+            <h4>Nueva dirección</h4>
+            <form method="post">
+                {% for campo, etiqueta in
+                [('calle','Calle'),('ciudad','Ciudad'),('provincia','Provincia'),('codigo_postal','Código
+                postal'),('pais','País')] %}
+                <label class="form-label w-100">{{ etiqueta }}<input class="form-control" name="{{ campo }}"
+                        required></label>{% endfor %}
+                <button class="btn btn-primary">Guardar dirección</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <h4>Direcciones guardadas</h4>
+        <ul class="list-group">{% for d in cliente.direcciones %}<li class="list-group-item">{{ d.calle }}, {{
+                d.codigo_postal }} {{ d.ciudad }} ({{ d.provincia }}) — {{ d.pais }}</li>{% else %}<li
+                class="list-group-item">Sin direcciones</li>{% endfor %}</ul>
+    </div>
+</div>{% endblock %}

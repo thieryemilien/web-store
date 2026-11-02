@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-SQLAlchemy>=2.0
-PyMySQL>=1.1
-pydantic>=2
-python-dotenv>=1.0
-pytest
-httpx
-python-multipart
